@@ -64,7 +64,7 @@ const Sidebar = () => {
         <div className="itemHeader" onClick={() => {nav('/System/Inbox')}}>
           <span><ion-icon name="chatbubble-ellipses-outline"></ion-icon></span>   Inbox
         </div>
-        <div className="itemHeader">
+        <div className="itemHeader" onClick={() => {nav('/System/History')}}>
           <span><ion-icon name="reload-outline"></ion-icon></span> history
         </div>
       </header>

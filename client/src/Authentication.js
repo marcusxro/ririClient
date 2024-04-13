@@ -15,6 +15,22 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
-const app = initializeApp(firebaseConfig);
+const app = initializeApp(firebaseConfig, "Provider 1");
 
 export const Authentication  = getAuth(app)
+
+
+
+const adminConfig = {
+  apiKey: "AIzaSyDGztUytTR3tanG7mPuopZpKHeAZbkWmA0",
+  authDomain: "admin-c27d9.firebaseapp.com",
+  projectId: "admin-c27d9",
+  storageBucket: "admin-c27d9.appspot.com",
+  messagingSenderId: "289783491216",
+  appId: "1:289783491216:web:2a577b095389485916c615"
+};
+
+// Initialize Firebase
+const admin = initializeApp(adminConfig, "Provider 2");
+
+export const AdminAuth  = getAuth(admin)

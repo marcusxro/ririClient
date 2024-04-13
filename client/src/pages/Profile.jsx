@@ -4,7 +4,7 @@ import { onAuthStateChanged } from 'firebase/auth'
 import { Authentication } from '../Authentication'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
-
+import moment from 'moment'
 
 const Profile = () => {
     const nav = useNavigate('')
@@ -34,7 +34,7 @@ const Profile = () => {
                 console.log(err)
             })
 
-    }, [data])
+    }, [data, uid])
 
     const [isEdit, setEdit] = useState(false)
     const [userName, setUsername] = useState('')
@@ -42,10 +42,11 @@ const Profile = () => {
     const [ContactNo, setContactNo] = useState('')
 
 
+
     const getVal = (user, addrss, cntc) => {
-        setUsername(user)
-        setAddress(addrss)
-        setContactNo(cntc)
+        setUsername(user);
+        setAddress(addrss ? addrss : "");
+        setContactNo(cntc ? cntc : "");
     }
 
     const [infoDetails, setInfo] = useState([])
@@ -53,12 +54,13 @@ const Profile = () => {
     useEffect(() => {
         axios.get('http://localhost:8080/GetInfo')
             .then((res) => {
-                setInfo(res.data[0])
+                const filteredData = res.data.filter((item) => item.Uid === uid)
+                setInfo(filteredData[0])
             }).catch((err) => {
                 console.log(err)
             })
 
-    }, [infoDetails])
+    }, [infoDetails, data])
 
     const sendInfo = () => {
 
@@ -73,7 +75,7 @@ const Profile = () => {
             console.log(err)
         })
 
-        axios.put(` http://localhost:8080/ChangeName/${uid}` , {
+        axios.put(` http://localhost:8080/ChangeName/${uid}`, {
             Username: userName,
         }).then(() => {
             console.log("details senst")
@@ -81,7 +83,39 @@ const Profile = () => {
             console.log(err)
         })
     }
+    const [checkedOutItem, setCheckedOut] = useState([])
+    const [toPrep, setToPrep] = useState([])
+    const [toShip, setToShip] = useState([])
+    const [toRec, setToRec] = useState([])
+    const [Recieved, setRecieved] = useState([])
+    
+    useEffect(() => {
+        axios.get('http://localhost:8080/getProduct')
+            .then((res) => {
+                const filteredData = res.data.filter((itm) => itm.Uid === uid)
+                setCheckedOut(filteredData)
+                const filteredToPrep = filteredData.filter((itm) => itm.Destination === "To Prepare")
+                const filteredToShip = filteredData.filter((itm) => itm.Destination === "To Ship")
+                const filteredToRec = filteredData.filter((itm) => itm.Destination === "To Receive")
+                const filteredRecieved = filteredData.filter((itm) => itm.Destination === "Received")
+                setToPrep(filteredToPrep)
+                setToShip(filteredToShip)
+                setToRec(filteredToRec)
+                setRecieved(filteredRecieved)
+            }).catch((err) => {
+                console.log(err)
+            })
+    }, [checkedOutItem])
 
+    const cancelItem = (itemId) => {
+        axios.put(`http://localhost:8080/editProduct/${itemId}`, {
+            Destination: "cancelled"
+        }).then(() => {
+            console.log("cancelled")
+        }).catch((err) => {
+            console.log(err)
+        })
+    }
     return (
         <div className='profileCon'>
             <Sidebar />
@@ -117,10 +151,10 @@ const Profile = () => {
 
                         <div className="secondCon">
                             <div className="Address">
-                                Address: <span>{infoDetails && infoDetails.Address}</span>
+                                Address: <span>{infoDetails ? infoDetails.Address : "No Address"}</span>
                             </div>
                             <div className="Address">
-                                Contact No: <span>{infoDetails && infoDetails.Contact}</span>
+                                Contact No: <span>{infoDetails ? infoDetails.Contact : "No Contact Number"}</span>
                             </div>
                         </div>
                     )}
@@ -138,68 +172,172 @@ const Profile = () => {
 
                     ) : (
 
-                        (data && <div className="absoBtn" onClick={() => { setEdit(!isEdit); getVal(data.Username, infoDetails.Address, infoDetails.Contact) }}>
-                            <ion-icon name="create-outline"></ion-icon>
-                        </div>)
+                        (data &&
+                            <div className="absoBtn" onClick={() => {
+                                setEdit(!isEdit);
+                                getVal(data.Username,
+                                    infoDetails ? infoDetails.Address : "",
+                                    infoDetails ? infoDetails.Contact : "")
+                            }}>
+                                <ion-icon name="create-outline"></ion-icon>
+                            </div>
+                        )
 
                     )}
                 </div>
 
 
-                        <div className="lowerContent">
+                <div className="lowerContent">
 
-                                <div className="lowerItem">
-                                        <div className="method">
-                                            <span><ion-icon name="wallet-outline"></ion-icon></span>
-                                            <span>To pay</span>
-                                        </div>
-                                        <div className="itemBody">
-                                            <div className="itemFirst">
-                                                <div className="items">
-                                                    Gallon Type:
-                                                </div>
-                                                <div className="items">
-                                                    Quantity:
-                                                </div>
-                                                <div className="items">
-                                                    Total prize:
-                                                </div>
-                                            </div>  
-                                        </div>
-                                </div>
-
-                                <div className="lowerItem">
-                                        <div className="method">
-                        <span><ion-icon name="water-outline"></ion-icon></span>
-                                            <span>To ship</span>
-                                        </div>
-                                        <div className="itemBody">
-                                            <div className="itemFirst">
-                                                <div className="items">
-                                                    Preparing
-                                                </div>
-                                                <div className="items">
-                                                    Quantity of Gallon:
-                                                </div>
-                                            </div>  
-                                        </div>
-                                </div>
-
-
-                                <div className="lowerItem">
-                                        <div className="method">
-                                        <span><ion-icon name="car-outline"></ion-icon></span>
-                                            <span>To recieve</span>
-                                        </div>
-                                        <div className="itemBody">
-                                            <div className="itemFirst">
-                                                <div className="items">
-                                                    On the way to deliver 
-                                                </div>
-                                            </div>  
-                                        </div>
-                                </div>
+                    <div className="lowerItem">
+                        <div className="method">
+                            <span><ion-icon name="wallet-outline"></ion-icon></span>
+                            <span>To pay</span>
                         </div>
+                        <div className="itemBody">
+                            {toPrep.length === 0 && "you have no items"}
+                            {toPrep.slice().reverse().map((item) => (
+                                <div className="itemBodyItem" key={item._id}>
+                                    <div className="itemFirsts">
+                                        <div className="toPrepItem">
+                                            Items Ordered:
+                                            {item.Data.map((itm) => (
+                                                <div className="gallons">
+                                                    {itm.itemName}
+                                                </div>
+                                            ))}
+                                        </div>
+                                        <div className="toPrepItem">
+                                            Quantity: {item.Data.length}
+                                        </div>
+                                        <div className="toPrepItem">
+                                        Status: {item.Destination}
+                                        </div>
+                                        Date Ordered: <span>{moment(new Date(parseInt(item.Date, 10))).format('MMMM Do YYYY, h:mm')}</span>
+                                        <div className="toPrepItem">
+                                            Total prize: ₱{item.totalPrice}
+                                        </div>
+                                        <button onClick={() => { cancelItem(item._id) }}>Cancel</button>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+
+                    </div>
+
+                    <div className="lowerItem">
+                        <div className="method">
+                            <span><ion-icon name="water-outline"></ion-icon></span>
+                            <span>To ship</span>
+                        </div>
+                        <div className="itemBody">
+                            {toShip.length === 0 && "No items to be ship yet"}
+                            {toShip.slice().reverse().map((item) => (
+                                <div className="itemBodyItem" key={item._id}>
+                                    <div className="itemFirsts">
+                                        <div className="toPrepItem">
+                                            Items Ordered:
+                                            {item.Data.map((itm) => (
+                                                <div className="gallons">
+                                                    {itm.itemName}
+                                                </div>
+                                            ))}
+                                        </div>
+                                        <div className="toPrepItem">
+                                            Quantity: {item.Data.length}
+                                        </div>
+                                        <div className="toPrepItem">
+                                        Status: {item.Destination}
+                                        </div>
+                                        Date: Ordered <span>{moment(new Date(parseInt(item.Date, 10))).format('MMMM Do YYYY, h:mm')}</span>
+                                        <div className="toPrepItem">
+                                            Total prize: ₱{item.totalPrice}
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+
+                    </div>
+
+
+                    <div className="lowerItem">
+                        <div className="method">
+                            <span><ion-icon name="car-outline"></ion-icon></span>
+                            <span>To receive</span>
+                        </div>
+                        <div className="itemBody">
+                            {toRec.length === 0 && "No items to be recieve yet"}
+                            {toRec.slice().reverse().map((item) => (
+                                <div className="itemBodyItem" key={item._id}>
+                                    <div className="itemFirsts">
+                                        <div className="toPrepItem">
+                                            Items Ordered:
+                                            {item.Data.map((itm) => (
+                                                <div className="gallons">
+                                                    {itm.itemName}
+                                                </div>
+                                            ))}
+                                        </div>
+                                        <div className="toPrepItem">
+                                            Quantity: {item.Data.length}
+                                        </div>
+                                        <div className="toPrepItem">
+                                        Status: {item.Destination}
+                                        </div>
+                                        <div className="toPrepItem">
+                                        Driver: {item.DeliverGuy}
+                                        </div>
+                                        Date Ordered: <span>{moment(new Date(parseInt(item.Date, 10))).format('MMMM Do YYYY, h:mm')}</span>
+                                        <div className="toPrepItem">
+                                            Total prize: ₱{item.totalPrice}
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    <div className="lowerItem">
+                        <div className="method">
+                            <ion-icon name="checkmark-done-circle-outline"></ion-icon>
+                            <span>Recieved</span>
+                        </div>
+                        <div className="itemBody">
+                            {Recieved.length === 0 && "No recieved items yet"}
+                            {Recieved.slice().reverse().map((item) => (
+                                <div className="itemBodyItem" key={item._id}>
+                                    <div className="itemFirsts">
+                                        <div className="toPrepItem">
+                                            Items Ordered:
+                                            {item.Data.map((itm) => (
+                                                <div className="gallons">
+                                                    {itm.itemName}
+                                                </div>
+                                            ))}
+                                        </div>
+                                        <div className="toPrepItem">
+                                            Quantity: {item.Data.length}
+                                        </div>
+                                        <div className="toPrepItem">
+                                        Driver: {item.DeliverGuy}
+                                        </div>
+                                        <div className="toPrepItem">
+                                        Status: {item.Destination}
+                                        </div>
+                                        Date: Ordered <span>{moment(new Date(parseInt(item.Date, 10))).format('MMMM Do YYYY, h:mm')}</span>
+                                        <div className="toPrepItem">
+                                            Total prize: ₱{item.totalPrice}
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+
+                    </div>
+
+
+                </div>
             </div>
 
         </div>
