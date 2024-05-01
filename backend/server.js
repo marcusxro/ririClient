@@ -16,19 +16,16 @@ app.get('/', async (req, res) => {
 })
 
 app.post('/SendAcc', async (req, res) => {
-  const { Email, Username, Password, Uid } = req.body;
+  const { Email, Username, Password, Address, Contact, Uid } = req.body;
   try {
-    console.log({
-      Email: Email,
-      Username: Username,
-      Password: Password,
-      Uid: Uid,
-    });
+
 
     const AccountInfo = new AccCollection({
       Email: Email,
       Username: Username,
       Password: Password,
+      Address: Address,
+      Contact: Contact,
       Uid: Uid,
     });
 
@@ -72,13 +69,15 @@ app.post('/SendInfo', async (req, res) => {
 
 app.put('/ChangeName/:Uid', async (req, res) => {
   const { Uid } = req.params;
-  const { Username } = req.body; // Access req.body directly             
+  const { Username, Address, Contact } = req.body; // Access req.body directly             
 
   try {
     console.log(Uid);
     const result = await AccCollection.updateOne({ Uid: Uid }, { // Using Uid as the filter
       $set: {
         Username: Username,
+        Address: Address,
+        Contact: Contact
       },
     });
     if (!result) {
@@ -115,10 +114,7 @@ app.get('/GetAcc', async (req, res) => {
 
 
 
-
 //cart funcs
-
-
 app.post('/SendCart', async (req, res) => {
   const { Item, Price, Date, Uid } = req.body;
   try {
@@ -138,16 +134,32 @@ app.post('/SendCart', async (req, res) => {
 })
 
 app.post('/DeleteCartItem', async (req, res) => {
-  const { itemId } = req.body; // Assuming itemId is the identifier for the item to be deleted
+  const { itemId } = req.body; // Assuming itemIds is an array of item IDs to be deleted
+  console.log(itemId);
   try {
-    // Find the item by its identifier and delete it from the database
-    await AddedCart.findByIdAndDelete(itemId);
-    res.status(200).json({ message: 'Item deleted successfully' });
+    // Find and delete all items by their identifiers from the database
+    await AddedCart.findOneAndDelete({ _id: { $in: itemId } });
+    res.status(200).json({ message: 'Items deleted successfully' });
   } catch (error) {
-    console.error('Error deleting item:', error);
-    res.status(500).json({ error: 'Error deleting item' });
+    console.error('Error deleting items:', error);
+    res.status(500).json({ error: 'Error deleting items' });
   }
 });
+
+
+app.post('/DeleteCartItems', async (req, res) => {
+  const { itemId } = req.body; // Assuming itemIds is an array of item IDs to be deleted
+  console.log(itemId);
+  try {
+    // Find and delete all items by their identifiers from the database
+    await AddedCart.deleteMany({ _id: { $in: itemId } });
+    res.status(200).json({ message: 'Items deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting items:', error);
+    res.status(500).json({ error: 'Error deleting items' });
+  }
+});
+
 
 
 app.get('/GetCart', async (req, res) => {
@@ -163,21 +175,26 @@ app.get('/GetCart', async (req, res) => {
 //checkout endpoints
 
 app.post('/SendProduct', async (req, res) => {
-  const { Email, Username, Data, message, ContactNum, Address, Destination, totalPrice, Date, Uid } = req.body;
+  const { Email, Username, Data, message, ContactNum, Address, Destination, totalPrice, Uid } = req.body;
+
   try {
+    // Validate required fields
+    if (!Email || !Username || !Data || !ContactNum || !Address || !totalPrice || !Uid) {
+      return res.status(400).json({ error: 'Missing required fields' });
+    }
 
     const productSend = new CheckedOut({
-      Email: Email,
-      Username: Username,
-      Data: Data,
-      message: message,
-      ContactNum: ContactNum,
-      Address: Address,
-      totalPrice: totalPrice,
-      Date: Date,
+      Email,
+      Username,
+      Data,
+      message,
+      ContactNum,
+      Address,
+      totalPrice,
+      Date: new Date(), // Use current date and time
       isCancelled: false,
-      Destination: Destination,
-      Uid: Uid,
+      Destination: Destination || "To Prepare", // Default value if Destination is not provided
+      Uid,
     });
 
     await productSend.save();
@@ -186,7 +203,7 @@ app.post('/SendProduct', async (req, res) => {
     console.error('Error saving activity:', error);
     res.status(500).json({ error: 'Error saving activity' });
   }
-})
+});
 
 app.put('/editProduct/:Id', async (req, res) => {
   const { Id } = req.params;
@@ -299,7 +316,7 @@ app.post('/postAct', async (req, res) => {
   try {
     let existingUserInfo = await TimestampSchema.findOne({ Uid });
 
-    if(existingUserInfo) {
+    if (existingUserInfo) {
       console.log('you already sent ur data')
     } else {
       const saveAct = new TimestampSchema({
@@ -318,11 +335,11 @@ app.post('/postAct', async (req, res) => {
 
 app.get('/getPostAct', async (req, res) => {
   TimestampSchema.find()
-  .then((data) => {
-    res.json(data)
-  }).catch((err) => {
-    console.log(err)
-  })
+    .then((data) => {
+      res.json(data)
+    }).catch((err) => {
+      console.log(err)
+    })
 })
 
 app.listen(8080, () => {
