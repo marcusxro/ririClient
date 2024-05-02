@@ -42,7 +42,6 @@ const Cart = () => {
         try {
             await axios.post('http://localhost:8080/DeleteCartItem', { itemId });
             await axios.get('http://localhost:8080/GetCart');
-
             if (isCheckedd) {
                 setSelectedItemPrice(prevPrice => prevPrice - parseFloat(itemPrice));
                 setProducts(prevProducts => prevProducts.map(item => {
@@ -69,12 +68,14 @@ const Cart = () => {
             if (aggregatedItems[item.Item]) {
                 aggregatedItems[item.Item].quantity++;
                 aggregatedItems[item.Item].totalPrice += parseFloat(item.Price);
+                aggregatedItems[item.Item].Price =item.Price
             } else {
                 aggregatedItems[item.Item] = {
                     itemName: item.Item,
                     quantity: 1,
                     ItemId: itemId,
                     totalPrice: parseFloat(item.Price),
+                    itemPrice: item.Price
                 };
             }
         });
@@ -108,9 +109,9 @@ const Cart = () => {
             Price: itemPrice,
             Date: Date.now(),
             Uid: uid,
-        }).then(() => {
+        }).then((goodRes) => {
             console.log('cart item sent');
-            if (isCheckedd) {
+            if (isCheckedd && goodRes) {
                 setSelectedItemPrice(prevPrice => prevPrice + parseFloat(itemPrice))
                 setProducts(prevProducts => prevProducts.map(item => {
                     if (item.itemName === itemName) {
@@ -126,9 +127,11 @@ const Cart = () => {
             console.log(err);
         });
     };
+
     useEffect(() => {
         console.log(products)
     }, [products])
+
     const inputEL = useRef(null)
     const [waterConChecked, setWaterConChecked] = useState(false);
     const [waterJagChecked, setWaterJagChecked] = useState(false);
@@ -258,6 +261,9 @@ const Cart = () => {
         }
     };
     
+
+
+
     
     return (
         <div className="cartCon">
@@ -279,11 +285,12 @@ const Cart = () => {
                             <div className="actions">
                                 <div className="cartName">{itemName}</div>
                                 <div className="btn">
-                                    <div className="btnItem ac" onClick={(e) => { deleteItem(itemInfo.ItemId, 30, itemName); }}>
+                                    <div className="btnItem ac" onClick={(e) => { deleteItem(itemInfo.ItemId, parseInt(itemInfo.itemPrice), itemName); }}>
                                         <ion-icon name="remove-circle-outline" />
                                     </div>
+                                    {itemInfo.itemPrice} 
                                     <div className="btnItem">quantity: ({itemInfo.quantity})</div>
-                                    <div className="btnItem ac" onClick={(e) => { AddCartItem(itemName, '30'); }}>
+                                    <div className="btnItem ac" onClick={(e) => { AddCartItem(itemName, parseInt(itemInfo.itemPrice)); }}>
                                         <ion-icon name="add-circle-outline" />
                                     </div>
                                 </div>

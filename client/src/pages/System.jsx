@@ -101,7 +101,7 @@ const System = () => {
         <div className="gallonCon">
           <div className="gallon">
             <div className="absoBtn">
-              <div className="btn" onClick={() => { sendCartItem("Water Container", "30") }}>
+              <div className="btn" onClick={() => { sendCartItem("Water Container", "260") }}>
                 <ion-icon name="cart-outline"></ion-icon>
               </div>
             </div>
@@ -120,10 +120,10 @@ const System = () => {
               </div>
 
               <div className="gallonBtn">
-                <div className="btn" onClick={() => { sendCartItem("Water Jag (Refill)", "20") }}>
+                <div className="btn" onClick={() => { sendCartItem("Water Container (Refill)", "20") }}>
                   Refill
                 </div>
-                <div className="btn" onClick={() => { sendCartItem("Water Jag (Gallon)", "20") }}>
+                <div className="btn" onClick={() => { sendCartItem("Water Container (Gallon)", "20") }}>
                   Buy Gallon
                 </div>
               </div>
@@ -134,7 +134,7 @@ const System = () => {
           <div className="gallon">
             <div className="absoBtn">
               <div className="btn">
-                <ion-icon name="cart-outline" onClick={() => { sendCartItem("Water Jag", "30") }}></ion-icon>
+                <ion-icon name="cart-outline" onClick={() => { sendCartItem("Water Jag", "260") }}></ion-icon>
               </div>
             </div>
             <div className="gallonImg">
@@ -189,41 +189,12 @@ const System = () => {
             </div>
           </div>
 
-          <div className="gallon">
-            <div className="absoBtn">
-              <div className="btn">
-                <ion-icon name="cart-outline" onClick={() => { sendCartItem("Mini Gallon", "30") }}></ion-icon>
-              </div>
-            </div>
-            <div className="gallonImg">
-              <img src={miniGallon} alt="" />
-            </div>
-            <div className="gallonLower">
-              <div className="gallonInfo">
-                <div className="name">
-                  Mini Gallon
-                </div>
-                <div className="price">
-                  ₱30
-                </div>
-              </div>
-              <div className="gallonBtn" onClick={() => { sendCartItem("Mini Gallon (Refill)", "20") }}>
-                <div className="btn">
-                  Refill
-                </div>
-                <div className="btn" onClick={() => { sendCartItem("Mini Gallon (Gallon)", "20") }}>
-                  Buy Gallon
-                </div>
-              </div>
-            </div>
-
-          </div>
 
 
           <div className="gallon">
             <div className="absoBtn">
               <div className="btn">
-                <ion-icon name="cart-outline" onClick={() => { sendCartItem("Water Gallon #3", "30") }}></ion-icon>
+                <ion-icon name="cart-outline" onClick={() => { sendCartItem("Water Gallon #3", "260") }}></ion-icon>
               </div>
             </div>
             <div className="gallonImg glln">
@@ -251,10 +222,10 @@ const System = () => {
 
 
 
-          <div className="gallon">
+           <div className="gallon">
             <div className="absoBtn">
               <div className="btn">
-                <ion-icon name="cart-outline" onClick={() => { sendCartItem("Water Gallon #4", "30") }}></ion-icon>
+                <ion-icon name="cart-outline" onClick={() => { sendCartItem("Water Gallon #4", "260") }}></ion-icon>
               </div>
             </div>
             <div className="gallonImg glln">
@@ -279,7 +250,7 @@ const System = () => {
               </div>
             </div>
 
-          </div>
+          </div> 
 
 
         </div>
